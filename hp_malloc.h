@@ -1,3 +1,6 @@
+// hp_malloc - A heap-based memory manager
+// Written by Chris Curl, 2023-07-09
+
 #ifndef __HP_MALLOC_H__
 
 extern void hp_init(char *buf, int sz);
