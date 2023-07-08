@@ -14,21 +14,21 @@ static HEAP_T *start, *end;
 static char *heap, *hh, *h_end;
 static int heap_sz;
 
-void cm_init(char *buf, int sz) {
+void hp_init(char *buf, int sz) {
 	heap = hh = buf;
 	heap_sz = sz;
     h_end = heap + heap_sz;
 	start = end = NULL;
 }
 
-char *heap_get(sz) {
+char *hp_get(sz) {
 	if (hh+sz >= h_end) { return NULL; }
 	char *ret = hh;
 	hh += sz;
 	return ret;
 }
 
-static char *reuse(int sz) {
+static char *hp_reuse(int sz) {
     HEAP_T *x = start;
     while (x) {
         if (x->isFree && (sz <= x->sz)) {
@@ -40,13 +40,13 @@ static char *reuse(int sz) {
     return NULL;
 }
 
-char *cm_malloc(int sz) {
-    char *ptr = reuse(sz);
+char *hp_malloc(int sz) {
+    char *ptr = hp_reuse(sz);
     if (ptr) { return ptr; }
     while (sz % 4) { ++sz; }
-    HEAP_T *x = (HEAP_T *)heap_get(sizeof(HEAP_T));
+    HEAP_T *x = (HEAP_T *)hp_get(sizeof(HEAP_T));
     if (!x) { return NULL; }
-    ptr = heap_get(sz);
+    ptr = hp_get(sz);
     if (!ptr) { hh -= sizeof(HEAP_T); return NULL; }
     x->prev = end;
     x->next = NULL;
@@ -59,11 +59,9 @@ char *cm_malloc(int sz) {
     return ptr;
 }
 
-// Garbage collect one entry 'x'
-static void cm_gc(HEAP_T *x) {
-    // printf("-gc(x:%p)-", x);
-    if (x->isFree == 1) { return; }
-    x->isFree = 1;
+// A simple "garbage collector"
+// Cull the "end" entry until it is not free
+static void hp_gc() {
     while (end && end->isFree) {
         hh = end;
         end = end->prev;
@@ -72,12 +70,11 @@ static void cm_gc(HEAP_T *x) {
     else { end->next = NULL; }
 }
 
-void cm_free(char *ptr) {
-    if (ptr == NULL) { return; }
+void hp_free(char *ptr) {
     HEAP_T *x = start;
-    while (x) {
-        if (x->ptr == ptr) { cm_gc(x); return; }
-        if (x->ptr < ptr) { x = x->next; }
-	else { return; }
+    while (x && (ptr < x)) {
+        if (x->ptr == ptr) { x->isFree = 1; }
+        x = x->next;
     }
+    hp_gc();
 }
