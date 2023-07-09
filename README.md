@@ -4,11 +4,13 @@ A set of minimalistic functions to support heap-based memory management.
 
 ## Installation
 
-There is no "installation", pre se.
+There is no "installation", per se. Just copy the files into your project and include them in your build process.
 
-Just copy the files into your project and include them in your build process.
+## License
 
-Please, just keep my name in the files to give me some props for this work.
+This code has a MIT license.
+
+Please, just keep my name in the files to give me some credit for this work.
 
 ## Usage
 
