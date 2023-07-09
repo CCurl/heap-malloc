@@ -1,4 +1,4 @@
-// hp_malloc - A heap-based memory manager
+// hp_malloc - A minimal heap-based memory manager
 // Written by Chris Curl, 2023-07-09
 
 #include "hp_malloc.h"
