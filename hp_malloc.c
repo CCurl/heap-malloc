@@ -22,7 +22,7 @@ void hp_init(char *buf, int sz) {
 	start = end = NULL;
 }
 
-char *hp_get(sz) {
+static char *hp_get(sz) {
 	if (hh+sz >= h_end) { return NULL; }
 	char *ret = hh;
 	hh += sz;
@@ -64,7 +64,7 @@ char *hp_malloc(int sz) {
 // Cull the "end" entry until it is not free
 static void hp_gc() {
     while (end && end->isFree) {
-        hh = end;
+        hh = (char *)end;
         end = end->prev;
     }
     if (end == NULL) { start = NULL; }
@@ -73,7 +73,7 @@ static void hp_gc() {
 
 void hp_free(char *ptr) {
     HEAP_T *x = start;
-    while (x && (ptr < x)) {
+    while (x && (ptr >= x->ptr)) {
         if (x->ptr == ptr) { x->isFree = 1; }
         x = x->next;
     }
