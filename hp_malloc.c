@@ -5,36 +5,37 @@
 
 #define NULL 0
 
-typedef struct heap_t { 
-    struct heap_t *prev, *next;
+typedef struct hp_alloc_t { 
+    struct hp_alloc_t *prev, *next;
     int sz, isFree;
     char *ptr; 
-} HEAP_T;
+} HP_ALLOC_T;
 
-static HEAP_T *start, *end;
-static char *heap, *hh, *h_end;
+static HP_ALLOC_T *start, *end;
+static char *heap, *hhere, *heap_end;
 static int heap_sz;
 
 void hp_init(char *buf, int sz) {
-	heap = hh = buf;
-	heap_sz = sz;
-    h_end = heap + heap_sz;
-	start = end = NULL;
+    heap = hhere = buf;
+    heap_sz = sz;
+    heap_end = heap + heap_sz;
+    start = end = NULL;
 }
 
 static char *hp_get(sz) {
-	if (hh+sz >= h_end) { return NULL; }
-	char *ret = hh;
-	hh += sz;
-	return ret;
+    while (((long)hhere & 0x04) != 0) { ++hhere; }
+    if (hhere+sz >= heap_end) { return NULL; }
+    char *ret = hhere;
+    hhere += sz;
+    return ret;
 }
 
 static char *hp_reuse(int sz) {
-    HEAP_T *x = start;
+    HP_ALLOC_T *x = start;
     while (x) {
         if (x->isFree && (sz <= x->sz)) {
             x->isFree = 0;
-	    return x->ptr;
+            return x->ptr;
         }
         x = x->next;
     }
@@ -44,11 +45,10 @@ static char *hp_reuse(int sz) {
 char *hp_malloc(int sz) {
     char *ptr = hp_reuse(sz);
     if (ptr) { return ptr; }
-    while (sz % 4) { ++sz; }
-    HEAP_T *x = (HEAP_T *)hp_get(sizeof(HEAP_T));
+    HP_ALLOC_T *x = (HP_ALLOC_T *)hp_get(sizeof(HP_ALLOC_T));
     if (!x) { return NULL; }
     ptr = hp_get(sz);
-    if (!ptr) { hh -= sizeof(HEAP_T); return NULL; }
+    if (!ptr) { hhere -= sizeof(HP_ALLOC_T); return NULL; }
     x->prev = end;
     x->next = NULL;
     x->sz = sz;
@@ -64,7 +64,7 @@ char *hp_malloc(int sz) {
 // Cull the "end" entry until it is not free
 static void hp_gc() {
     while (end && end->isFree) {
-        hh = (char *)end;
+        hhere = (char *)end;
         end = end->prev;
     }
     if (end == NULL) { start = NULL; }
@@ -72,7 +72,7 @@ static void hp_gc() {
 }
 
 void hp_free(char *ptr) {
-    HEAP_T *x = start;
+    HP_ALLOC_T *x = start;
     while (x && (ptr >= x->ptr)) {
         if (x->ptr == ptr) { x->isFree = 1; }
         x = x->next;
