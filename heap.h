@@ -17,6 +17,7 @@
 #define HEAP_SZ 10000
 #endif
 
+extern void hInit(int gran);
 extern char *hAlloc(int sz);
 extern void hFree(char *data);
 void hDump(int details, FILE *toFP);
