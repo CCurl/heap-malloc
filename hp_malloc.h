@@ -1,23 +1,24 @@
-// hp_malloc - A simple and minimal heap-based memory manager
-// Written by Chris Curl.
+#ifndef __HALLOC__
 
-#ifndef __HP_MALLOC_H__
+#define __HALLOC__
 
-// Example usage:
-//
-// Start with hp_init(). Give it the address of the heap and its size.
-//
-// char heap[HEAP_SZ)];
-// hp_init(heap, HEAP_SZ);
-// TYPE *pType = (TYPE *)hp_malloc(sizeof(TYPE));
-// ... do what ever with pType ...
-// hp_free(pType);
+#include <stdio.h>
+#include <stdint.h>
 
-extern void hp_init(char *buf, int sz, int num_entries);
-extern char *hp_malloc(int sz);
-extern char *hp_realloc(char *old_ptr, int new_sz);
-extern void hp_free(char *ptr);
-extern void hp_gc();
-extern void hp_dump();
+// Change these to control the heap and index sizes.
+// Or, they can be set before #including this file.
+// For details, see heap.c
 
+#ifndef HEAPINDEX_SZ
+#define HEAPINDEX_SZ 500
 #endif
+
+#ifndef HEAP_SZ
+#define HEAP_SZ 10000
+#endif
+
+extern char *hAlloc(int sz);
+extern void hFree(char *data);
+void hDump(int details, FILE *toFP);
+
+#endif // __HALLOC__
