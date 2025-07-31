@@ -14,4 +14,4 @@ Please, just keep my name in the files to give me some credit for this work.
 
 ## Usage
 
-Hopefully, the hp_malloc.h file has enough info in it to be clear about how to use it.
+Hopefully, the heap.h file has enough info in it to be clear about how to use it.

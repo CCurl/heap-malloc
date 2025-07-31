@@ -1,7 +1,7 @@
 ARCH ?= 32
 
-tests: tests.c hp_malloc.c hp_malloc.h
-	$(CC) -m$(ARCH) -o tests tests.c hp_malloc.c
+tests: tests.c heap.c heap.h
+	$(CC) -m$(ARCH) -o tests tests.c heap.c
 
 clean:
 	rm ./tests

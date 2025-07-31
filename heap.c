@@ -24,8 +24,8 @@ void hDump(int details, FILE *toFP) {
 	if (details) {
 		for (uint i = 0; i < iHere; i++) {
 			PHEAP x = (PHEAP)&index[i];
-			fprintf(toFP ? toFP : stdout, "%3d, inuse: %u, sz: %2u, off: %u\n",
-				i, x->inUse, x->sz, x->off);
+			fprintf(toFP ? toFP : stdout, "%3d, inuse: %u, sz: %2u, off: %u, ptr: %p\n",
+				i, x->inUse, x->sz, x->off, &heap[x->off]);
 		}
 	}
 }
