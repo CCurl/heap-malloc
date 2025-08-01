@@ -2,7 +2,7 @@
 #include "heap.h"
 
 int main() {
-    hInit(4);
+    hInit(0);
     char *x1 = hAlloc(10); printf("x1: %p\n", x1);
     char *x2 = hAlloc(20); printf("x2: %p\n", x2);
     hFree(x2);
@@ -17,9 +17,9 @@ int main() {
     // hFree(x5);
     x1 = hAlloc(10); printf("x1 now: %p\n", x1);
     x2 = hAlloc(20); printf("x2 now: %p\n", x2);
-    printf("\n");
     for (int i=0; i<9; i++) { x1[i] = 'A'+i; } x1[9]=0;
-    printf("[%s]=?[%s]\n", x1, x2);
+    x1 = hRealloc(x1, 20); printf("x1 now: %p\n", x1);
+    printf("\n[%s]=?[%s]\n", x1, x2);
     // hFree(x2);
     hDump(1, NULL);
     return 0;

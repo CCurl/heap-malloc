@@ -1,5 +1,6 @@
 /*---------------------------------------------------------------------------*/
 /* A simple heap allocator */
+/* Chris Curl - MIT License */
 
 #include "heap.h"
 
@@ -13,25 +14,25 @@ typedef struct {
 static uint32_t hHere = 0, iHere = 0;
 static HEAP_T index[HEAPINDEX_SZ];
 static char heap[HEAP_SZ];
-static int hASG = 8; // alloc size granularity
+static int hASG = sizeof(char *); // alloc size granularity
 
 void hInit(int gran) {
 	hHere = iHere = 0;
-	hASG = gran;
+	if (0 < gran) { hASG = gran; }
 	for (uint i = 0; i < HEAPINDEX_SZ; i++) {
 		PHEAP x = (PHEAP)&index[i];
 		x->inUse = x->off = x->sz = 0;
 	}
 }
 
-void hDump(int details, FILE *toFP) {
+void hDump(int includeIndex, FILE *toFP) {
 	FILE *fp = toFP ? toFP : stdout;
 	fprintf(fp, "heap component information:\n");
 	fprintf(fp, "----------------------------------------\n");
 	fprintf(fp, "heap  - size: %u bytes, %u used\n", HEAP_SZ, hHere);
 	fprintf(fp, "index - size: %u records, %u used\n", HEAPINDEX_SZ, iHere);
 	fprintf(fp, "other - index struct sz: %u, granularity, %d bytes\n", sizeof(HEAP_T), hASG);
-	if (details) {
+	if (includeIndex) {
 		for (uint i = 0; i < iHere; i++) {
 			PHEAP x = (PHEAP)&index[i];
 			fprintf(fp, "%3d, inuse: %u, sz: %2u, off: %u, ptr: %p\n",
@@ -74,9 +75,10 @@ char *hAlloc(int sz) {
 }
 
 static int hFindIndex(char *data) {
-	int32_t off = data - &heap[0];
-	if (!BTWI(off, 0, HEAP_SZ-1)) { return -1; }
-	for (uint i = 0; i < iHere; i++) {
+	if (data < &heap[0]) { return -1; }
+	uint off = data - &heap[0];
+	if (hHere <= off) { return -1; }
+	for (int i = 0; i < iHere; i++) {
 		if (index[i].off == off) { return i; }
 	}
 	return -1;
@@ -94,4 +96,17 @@ void hFree(char *data) {
 		x->off = x->sz = 0;
 		iHere--;
 	}
+}
+
+char *hRealloc(char *data, int newSz) {
+	int hi = hFindIndex(data);
+	if (hi == -1) { return data; }
+	PHEAP x = &index[hi];
+	uint sz = x->sz;
+	hFree(data);
+	char *y = hAlloc(newSz);
+	if ((y) && (y != data)) {
+		for (uint i = 0; i < sz; i++) { y[i] = data[i]; }
+	}
+	return y;
 }
