@@ -6,7 +6,6 @@
 #define __HALLOC__
 
 #include <stdio.h>
-#include <stdint.h>
 
 // Change these to control the heap and index sizes.
 // For details, see heap.c
